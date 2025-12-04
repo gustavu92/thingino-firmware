@@ -1,8 +1,11 @@
 PRUDYNT_T_SITE_METHOD = git
 # PRUDYNT_T_SITE = https://github.com/gtxaspec/prudynt-t
-PRUDYNT_T_SITE = https://github.com/themactep/prudynt-t
+PRUDYNT_T_SITE = https://github.com/gustavu92/prudynt-t
 PRUDYNT_T_SITE_BRANCH = stable
-PRUDYNT_T_VERSION = c9354aabb2ff8ad56119fda10a7789987debbe6f
+PRUDYNT_T_VERSION = d1798b4c44a96f28f9e81d068e0e492681459eb2
+
+PRUDYNT_T_CFLAGS += -I$(TOPDIR)/jpeg_enc/include
+PRUDYNT_LDFLAGS += -L$(TOPDIR)/jpeg_enc/lib -ljpeg_enc
 
 PRUDYNT_T_GIT_SUBMODULES = YES
 
