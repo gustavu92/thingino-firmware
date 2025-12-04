@@ -95,14 +95,11 @@ PRUDYNT_LDFLAGS += $(TARGET_LDFLAGS) \
 	-L$(TARGET_DIR)/usr/lib
 
 define PRUDYNT_T_BUILD_CMDS
-	PRUDYNT_CFLAGS += -I$(@D)/jpeg_enc/include
-	PRUDYNT_LDFLAGS += -L$(@D)/jpeg_enc/lib -ljpeg_enc
-	
 	$(MAKE) \
 		ARCH=$(TARGET_ARCH) \
 		CROSS_COMPILE=$(TARGET_CROSS) \
-		CFLAGS="$(PRUDYNT_CFLAGS)" \
-		LDFLAGS="$(PRUDYNT_LDFLAGS)" \
+		CFLAGS="$(PRUDYNT_CFLAGS) -I$(@D)/jpeg_enc/include" \
+		LDFLAGS="$(PRUDYNT_LDFLAGS) -L$(@D)/jpeg_enc/lib -ljpeg_enc" \
 		$(if $(filter y,$(BR2_PACKAGE_PRUDYNT_T_DEBUG)),DEBUG=1 DEBUG_STRIP=0,DEBUG_STRIP=1) \
 		$(if $(BR2_PACKAGE_PRUDYNT_T_FFMPEG),USE_FFMPEG=1) \
 		$(if $(BR2_PACKAGE_PRUDYNT_T_WEBRTC),WEBRTC_ENABLED=1,) \
