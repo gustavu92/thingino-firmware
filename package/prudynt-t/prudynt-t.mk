@@ -4,9 +4,6 @@ PRUDYNT_T_SITE = https://github.com/gustavu92/prudynt-t
 PRUDYNT_T_SITE_BRANCH = stable
 PRUDYNT_T_VERSION = d1798b4c44a96f28f9e81d068e0e492681459eb2
 
-PRUDYNT_T_CFLAGS += -I$(TOPDIR)/jpeg_enc/include
-PRUDYNT_LDFLAGS += -L$(TOPDIR)/jpeg_enc/lib -ljpeg_enc
-
 PRUDYNT_T_GIT_SUBMODULES = YES
 
 PRUDYNT_T_DEPENDENCIES += ingenic-lib
@@ -98,6 +95,9 @@ PRUDYNT_LDFLAGS += $(TARGET_LDFLAGS) \
 	-L$(TARGET_DIR)/usr/lib
 
 define PRUDYNT_T_BUILD_CMDS
+	PRUDYNT_CFLAGS += -I$(@D)/jpeg_enc/include
+	PRUDYNT_LDFLAGS += -L$(@D)/jpeg_enc/lib -ljpeg_enc
+	
 	$(MAKE) \
 		ARCH=$(TARGET_ARCH) \
 		CROSS_COMPILE=$(TARGET_CROSS) \
