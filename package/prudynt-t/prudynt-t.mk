@@ -95,10 +95,10 @@ PRUDYNT_LDFLAGS += $(TARGET_LDFLAGS) \
 	-L$(TARGET_DIR)/usr/lib
 
 define PRUDYNT_T_BUILD_CMDS
-	$(MAKE) -C $(@D)/jpeg_enc \
+	$(MAKE) -C $(@D)/jpeg_enc install PREFIX=$(@D)/jpeg_enc \
 		ARCH=$(TARGET_ARCH) \
 		CROSS_COMPILE=$(TARGET_CROSS)
-		
+
 	$(MAKE) \
 		ARCH=$(TARGET_ARCH) \
 		CROSS_COMPILE=$(TARGET_CROSS) \
