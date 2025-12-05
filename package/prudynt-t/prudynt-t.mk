@@ -2,7 +2,7 @@ PRUDYNT_T_SITE_METHOD = git
 # PRUDYNT_T_SITE = https://github.com/gtxaspec/prudynt-t
 PRUDYNT_T_SITE = https://github.com/gustavu92/prudynt-t
 PRUDYNT_T_SITE_BRANCH = stable
-PRUDYNT_T_VERSION = 326ba1ceb26efc8eeb03acd7bd269952902b7a55
+PRUDYNT_T_VERSION = 8c7aa04e9d47a92d223459cfa6f3c2bd9cf176d1
 
 PRUDYNT_T_GIT_SUBMODULES = YES
 
