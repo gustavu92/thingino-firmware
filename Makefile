@@ -239,6 +239,7 @@ update:
 	@echo "=== UPDATING SUBMODULES ==="
 	git submodule init
 	git submodule update
+	@$(FIGLET) "$(GIT_BRANCH)"
 
 # install what's needed
 bootstrap:
@@ -433,11 +434,11 @@ select-device:
 	$(info -------------------------------- $@)
 
 # call configurator
-menuconfig: $(OUTPUT_DIR)/.config
+menuconfig: check-config $(OUTPUT_DIR)/.config
 	$(info -------------------------------- $@)
 	$(BR2_MAKE) BR2_DEFCONFIG=$(CAMERA_CONFIG_REAL) menuconfig
 
-nconfig: $(OUTPUT_DIR)/.config
+nconfig: check-config $(OUTPUT_DIR)/.config
 	$(info -------------------------------- $@)
 	$(BR2_MAKE) BR2_DEFCONFIG=$(CAMERA_CONFIG_REAL) nconfig
 
@@ -531,9 +532,11 @@ pack: $(FIRMWARE_BIN_FULL) $(FIRMWARE_BIN_NOBOOT)
 	@$(FIGLET) $(CAMERA)
 	@$(FIGLET) $(GIT_BRANCH)
 	@if [ "$(RELEASE)" -ne 1 ]; then $(FIGLET) "NON-SECURE"; fi
+	@if [ $(EXTRAS_PARTITION_SIZE) -lt $(EXTRAS_LLIMIT) ]; then $(FIGLET) "EXTRAS PARTITION IS TOO SMALL"; fi
 	@if [ $(FIRMWARE_BIN_FULL_SIZE) -gt $(FIRMWARE_FULL_SIZE) ]; then \
 		$(FIGLET) "OVERSIZE"; else \
-		$(FIGLET) "FINE $(shell date +"%T")"; fi
+		$(FIGLET) "FINE"; fi
+	@date +%T
 	@echo "--------------------------------"
 	@echo "Full Image:"
 	@echo "$(FIRMWARE_BIN_FULL)"
@@ -623,6 +626,11 @@ $(CONFIG_PARTITION_DIR)/.keep:
 	test -d $(CONFIG_PARTITION_DIR) || mkdir -p $(CONFIG_PARTITION_DIR)
 	touch $@
 
+# generate a base Buildroot config when missing
+$(OUTPUT_DIR)/.config:
+	$(info -------------------------------- $@)
+	$(MAKE) force-config
+
 $(U_BOOT_ENV_TXT): $(OUTPUT_DIR)/.config
 	$(info -------------------------------- $@)
 	touch $@
@@ -668,8 +676,6 @@ $(CONFIG_BIN): $(CONFIG_PARTITION_DIR)/.keep
 # create extras partition image
 $(EXTRAS_BIN): $(U_BOOT_BIN)
 	$(info -------------------------------- $@)
-	# complain if there is not enough space for extras partition
-	@if [ $(EXTRAS_PARTITION_SIZE) -lt $(EXTRAS_LLIMIT) ]; then $(FIGLET) "EXTRAS PARTITION IS TOO SMALL"; fi
 	# remove older image if present
 	if [ -f $@ ]; then rm $@; fi
 	# extract /opt/ from target rootfs to a separare directory
