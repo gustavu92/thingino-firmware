@@ -104,6 +104,9 @@ define PRUDYNT_T_BUILD_CMDS
 	$(MAKE) -C $(@D)/jpeg_enc install PREFIX=$(@D)/jpeg_enc \
 		ARCH=$(TARGET_ARCH) \
 		CROSS_COMPILE=$(TARGET_CROSS)
+
+	mkdir -p $(TARGET_DIR)/usr/lib/
+	cp $(@D)/jpeg_enc/lib/libjpeg_enc.so $(TARGET_DIR)/usr/lib/
 		
 	$(MAKE) \
 		ARCH=$(TARGET_ARCH) \
