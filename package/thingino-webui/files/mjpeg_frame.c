@@ -34,6 +34,7 @@ main(int ac, char *av[])
     if (boundary != NULL)
         printf("--%s" CRLF, boundary);
     printf("Content-Type: image/jpeg" CRLF);
+    printf("Access-Control-Allow-Origin: *" CRLF);
     printf("Content-Length: %jd" CRLF CRLF, (intmax_t) st.st_size);
     fflush(stdout);
     int bread;
