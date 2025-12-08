@@ -58,7 +58,6 @@ serve_one_frame(const char *jpegfilename)
         rc = UNEXPECTED_ERROR;
         goto out;
     }
-    // assume printf will buffer here
     printf("--%s" CRLF, boundary);
     printf("Content-Type: image/jpeg" CRLF);
     printf("Content-Length: %jd" CRLF CRLF, (intmax_t) st.st_size);
@@ -83,19 +82,34 @@ out:
 int
 main(int ac, char *av[])
 {
+    const char *method = getenv("REQUEST_METHOD");
+    if (method && strcmp(method, "OPTIONS") == 0) {
+        printf("HTTP/1.1 200 OK\r\n");
+        printf("Access-Control-Allow-Origin: *\r\n");
+        printf("Access-Control-Allow-Headers: Authorization\r\n");
+        printf("Access-Control-Allow-Methods: GET, OPTIONS\r\n");
+        printf("Content-Length: 0\r\n");
+        printf("\r\n");
+        return 0;
+    }
+
     if (ac > 1 && !strcmp(av[1], "-h")) {
         fprintf(stderr, "Usage: %s [filename.jpg=/tmp/snapshot.jpg]\n", av[0]);
         return EXIT_FAILURE;
     }
+
     const char *jpegfilename = ac > 1 ? av[1] : "/tmp/snapshot.jpg";
     char *jpegdirname = strdup(dirname(strdup(jpegfilename)));
     char *jpegbasename = strdup(basename(strdup(jpegfilename)));
+
     write(STDOUT_FILENO, http_response, strlen(http_response));
+
     int ifd = inotify_init();
     if (ifd < 0) {
         perror("inotify_init");
         return EXIT_FAILURE;
     }
+
     int wd = inotify_add_watch(ifd, jpegdirname, IN_CREATE | IN_MOVED_TO);
     if (wd == -1) {
         perror("inotify_add_watch");
@@ -123,8 +137,6 @@ nextframe:
                 i += sizeof(struct inotify_event) + event->len;
             }
         }
-        // as a safety measure, if there were 1000 inotify events in the /tmp directory,
-        // but none related to the file we're watching for, exit here.
         return EXIT_FAILURE;
     }
     return rc != UNEXPECTED_ERROR ? EXIT_SUCCESS : EXIT_FAILURE;
