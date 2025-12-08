@@ -32,7 +32,8 @@ const char *http_response =
     "Cache-Control: no-cache" CRLF
     "Pragma: no-cache" CRLF
     "Connection: close" CRLF
-    CRLF    // end of headers
+    "Access-Control-Allow-Origin: *" CRLF
+    CRLF
 ;
 
 enum exit_code {
