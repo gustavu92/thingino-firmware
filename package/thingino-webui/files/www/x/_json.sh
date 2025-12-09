@@ -17,6 +17,9 @@ json_header() {
 Pragma: no-cache
 Expires: $(TZ=GMT0 date +'%a, %d %b %Y %T %Z')
 Etag: \"$(cat /proc/sys/kernel/random/uuid)\"
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, POST, OPTIONS
+Access-Control-Allow-Headers: Content-Type
 "
 }
 

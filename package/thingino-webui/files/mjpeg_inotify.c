@@ -32,8 +32,7 @@ const char *http_response =
     "Cache-Control: no-cache" CRLF
     "Pragma: no-cache" CRLF
     "Connection: close" CRLF
-    "Access-Control-Allow-Origin: *" CRLF
-    CRLF
+    CRLF    // end of headers
 ;
 
 enum exit_code {
@@ -58,6 +57,7 @@ serve_one_frame(const char *jpegfilename)
         rc = UNEXPECTED_ERROR;
         goto out;
     }
+    // assume printf will buffer here
     printf("--%s" CRLF, boundary);
     printf("Content-Type: image/jpeg" CRLF);
     printf("Content-Length: %jd" CRLF CRLF, (intmax_t) st.st_size);
@@ -79,17 +79,16 @@ out:
     return rc;
 }
 
-int
-main(int ac, char *av[])
+int main(int ac, char *av[])
 {
     const char *method = getenv("REQUEST_METHOD");
+
     if (method && strcmp(method, "OPTIONS") == 0) {
-        printf("HTTP/1.1 200 OK\r\n");
+        printf("HTTP/1.1 204 No Content\r\n");
         printf("Access-Control-Allow-Origin: *\r\n");
-        printf("Access-Control-Allow-Headers: Authorization\r\n");
-        printf("Access-Control-Allow-Methods: GET, OPTIONS\r\n");
-        printf("Content-Length: 0\r\n");
-        printf("\r\n");
+        printf("Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n");
+        printf("Access-Control-Allow-Headers: Content-Type, Authorization\r\n");
+        printf("Content-Length: 0\r\n\r\n");
         return 0;
     }
 
@@ -102,14 +101,16 @@ main(int ac, char *av[])
     char *jpegdirname = strdup(dirname(strdup(jpegfilename)));
     char *jpegbasename = strdup(basename(strdup(jpegfilename)));
 
-    write(STDOUT_FILENO, http_response, strlen(http_response));
+    printf("Access-Control-Allow-Origin: *\r\n");
+    printf("Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n");
+    printf("Access-Control-Allow-Headers: Content-Type, Authorization\r\n");
 
+    write(STDOUT_FILENO, http_response, strlen(http_response));
     int ifd = inotify_init();
     if (ifd < 0) {
         perror("inotify_init");
         return EXIT_FAILURE;
     }
-
     int wd = inotify_add_watch(ifd, jpegdirname, IN_CREATE | IN_MOVED_TO);
     if (wd == -1) {
         perror("inotify_add_watch");
@@ -137,6 +138,8 @@ nextframe:
                 i += sizeof(struct inotify_event) + event->len;
             }
         }
+        // as a safety measure, if there were 1000 inotify events in the /tmp directory,
+        // but none related to the file we're watching for, exit here.
         return EXIT_FAILURE;
     }
     return rc != UNEXPECTED_ERROR ? EXIT_SUCCESS : EXIT_FAILURE;
